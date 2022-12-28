@@ -8,6 +8,8 @@ data/
 ### Kaggle
 kaggle.json
 
+*.mp4
+*.zip
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
