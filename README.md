@@ -11,6 +11,14 @@
 > unzip nfl-impact-detection.zip -d ./data
 ```
 
+#### Install ffmpeg for visualization
+
 ```
 > sudo apt install -y ffmpeg
+```
+
+#### Build Detectron2 from Source
+Details are on the [document](https://detectron2.readthedocs.io/en/latest/tutorials/install.html).
+```
+> python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
 ```
