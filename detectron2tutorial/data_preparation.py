@@ -55,19 +55,48 @@ def get_balloon_dicts(img_dir):
     return dataset_dicts
 
 
+class NumpyEncoder(json.JSONEncoder):
+    """ Custom encoder for numpy data types """
+    def default(self, obj):
+        if isinstance(obj, (np.int_, np.intc, np.intp, np.int8,
+                            np.int16, np.int32, np.int64, np.uint8,
+                            np.uint16, np.uint32, np.uint64)):
+
+            return int(obj)
+
+        elif isinstance(obj, (np.float_, np.float16, np.float32, np.float64)):
+            return float(obj)
+
+        elif isinstance(obj, (np.complex_, np.complex64, np.complex128)):
+            return {'real': obj.real, 'imag': obj.imag}
+
+        elif isinstance(obj, (np.ndarray,)):
+            return obj.tolist()
+
+        elif isinstance(obj, (np.bool_)):
+            return bool(obj)
+
+        elif isinstance(obj, (np.void)): 
+            return None
+
+        return json.JSONEncoder.default(self, obj)
+
+
 if __name__ == '__main__':
-    for d in ["train", "val"]:
-        DatasetCatalog.register("balloon_" + d, lambda d=d: get_balloon_dicts("balloon/" + d))
-        MetadataCatalog.get("balloon_" + d).set(thing_classes=["balloon"])
-    balloon_metadata = MetadataCatalog.get("balloon_train")
 
-    print(balloon_metadata)
+    for d in ['train', 'val']:
+        dataset_dicts = get_balloon_dicts(f'balloon/{d}')
+        print(type(dataset_dicts))
+        print(dataset_dicts)
 
+        with open(f'dataset_dicts_{d}.json', 'w') as f:
+            json.dump(dataset_dicts, f, indent=4, cls=NumpyEncoder)
 
-    dataset_dicts = get_balloon_dicts("balloon/train")
-    print(dataset_dicts[0])
-    for i, d in enumerate(random.sample(dataset_dicts, 3)):
-        img = cv2.imread(d["file_name"])
-        visualizer = Visualizer(img[:, :, ::-1], metadata=balloon_metadata, scale=0.5)
-        out = visualizer.draw_dataset_dict(d)
-        cv2.imwrite(f"img{i}.jpg", out.get_image()[:, :, ::-1])
+        with open(f'dataset_dicts_{d}.json') as f:
+            dataset_dicts = json.load(f)
+
+        for i, dct in enumerate(random.sample(dataset_dicts, 3)):
+            img = cv2.imread(dct["file_name"])
+            visualizer = Visualizer(img[:, :, ::-1], scale=0.5)
+            out = visualizer.draw_dataset_dict(dct)
+            cv2.imwrite(f"img_{d}{i}.jpg", out.get_image()[:, :, ::-1])
