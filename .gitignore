@@ -11,6 +11,7 @@ kaggle.json
 *.mp4
 *.jpg
 *.zip
+.output
 
 baloon/
 output/
